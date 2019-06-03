@@ -24,7 +24,7 @@ RUN buildDeps="curl build-essential ca-certificates git python postgresql-server
     && strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8.so \
     && cd / \
     && rm -rf /tmp/build \
-    && apt-get remove -y --purge ${buildDependencies} \
+    && apt-get remove -y --purge ${buildDeps} \
     && apt-get autoremove -y --purge \
     && rm -rf /var/lib/apt/lists/*
 
