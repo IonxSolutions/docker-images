@@ -14,10 +14,11 @@ These images are based on the [official Postgres image](https://hub.docker.com/r
 - [10.2](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/10.2)
 - [10.6](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/10.6)
 - [11.1](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/11.1)
+- [11.5](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/11.5)
 
 ### Usage
 ```bash
-$ docker run -d --name postgres ionx/postgres-plv8:11.1
+$ docker run -d --name postgres ionx/postgres-plv8:11.5
 ```
 
 _Copyright &copy; 2018 [Ionx Solutions](https://www.ionxsolutions.com) - Provided under the [Apache License, Version 2.0](http://apache.org/licenses/LICENSE-2.0.html)._
