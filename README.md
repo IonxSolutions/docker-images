@@ -15,6 +15,7 @@ These images are based on the [official Postgres image](https://hub.docker.com/r
 - [10.6](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/10.6)
 - [11.1](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/11.1)
 - [11.5](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/11.5)
+- [12.2](https://github.com/IonxSolutions/docker-images/tree/master/postgres-plv8/12.2)
 
 ### Usage
 ```bash
