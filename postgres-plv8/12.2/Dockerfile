@@ -6,7 +6,7 @@
 FROM debian:stretch-slim AS staging
 
 ENV PLV8_VERSION 2.3.14
-ENV PLV8_SHASUM="9bfbe6498fcc7b8554e4b7f7e48c75acef10f07cf1e992af876a71e4dbfda0a6 plv8-${PLV8_VERSION}.7z"
+ENV PLV8_SHASUM="d5f057d0307422c066ce87f077a22f6be7e407151a2b882270fa2420b6123dd4 plv8-${PLV8_VERSION}.7z"
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends curl ca-certificates p7zip
