@@ -1,0 +1,55 @@
+# Docker image for PostgreSQL with the plv8 extensions installed
+# Note: building plv8 from source takes a long time, and will timeout with Docker Hub's
+# automated builds. See the main Dockerfile for an image that uses pre-built binaries
+# (built using this Dockerfile.build)
+# Provided by Ionx Solutions: https://www.ionxsolutions.com
+
+# Begin by building plv8
+FROM postgres:13.6 AS build
+
+ENV PLV8_VERSION 2.3.15
+ENV PLV8_SHASUM="8a05f9d609bb79e47b91ebc03ea63b3f7826fa421a0ee8221ee21581d68cb5ba ${PLV8_VERSION}.tar.gz"
+
+RUN buildDeps="curl build-essential ca-certificates git python gnupg libc++-dev libc++abi-dev libtinfo5 libpq-dev pkg-config glib2.0 lsb-release" \
+    && apt-get update \
+    && apt-get -y remove libpq5 \
+    && apt-get install -y --no-install-recommends ${buildDeps} \
+    && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-server-dev-$PG_MAJOR \
+    && git config --global user.email "nobody@example.com" \
+    && git config --global user.name "nobody" \
+    && mkdir -p /tmp/build \
+    && curl -o /tmp/build/${PLV8_VERSION}.tar.gz -SL "https://github.com/plv8/plv8/archive/v${PLV8_VERSION}.tar.gz" \
+    && cd /tmp/build \
+    && echo ${PLV8_SHASUM} | sha256sum -c \
+    && tar -xzf /tmp/build/${PLV8_VERSION}.tar.gz -C /tmp/build/ \
+    && cd /tmp/build/plv8-${PLV8_VERSION} \
+    && make static \
+    && make install \
+    && strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so \
+    && cd / \
+    && rm -rf /tmp/build \
+    && apt-get remove -y --purge ${buildDeps} \
+    && apt-get autoremove -y --purge \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the extension build output into an image based on postgres
+FROM postgres:13.6
+LABEL description="PostgreSQL with the plv8 extension installed" maintainer="support@ionxsolutions.com"
+ENV PLV8_VERSION 2.3.15
+
+COPY --from=build /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so
+COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/plv8.control /usr/share/postgresql/${PG_MAJOR}/extension/plv8.control
+COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/plv8--${PLV8_VERSION}.sql /usr/share/postgresql/${PG_MAJOR}/extension/plv8--${PLV8_VERSION}.sql
+
+RUN cat /usr/share/postgresql/${PG_MAJOR}/extension/plv8--${PLV8_VERSION}.sql
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libc++1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && chmod 0755 /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so \
+    && chmod 0644 /usr/share/postgresql/${PG_MAJOR}/extension/plv8.control \
+    && chmod 0644 /usr/share/postgresql/${PG_MAJOR}/extension/plv8--${PLV8_VERSION}.sql \
+    && echo 'CREATE EXTENSION plv8;' > /docker-entrypoint-initdb.d/plv8.sql
